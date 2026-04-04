@@ -1,0 +1,23 @@
+{
+  "entity_type": "Job_Description",
+  "job_profile": {
+    "title": "string",
+    "department": "string",
+    "location": "string",
+    "work_mode": "Remote | Hybrid | On-site"
+  },
+  "requirements": {
+    "minimum_experience_years": "integer",
+    "maximum_experience_years": "integer",
+    "required_skills": ["string"],
+    "preferred_skills": ["string"],
+    "preferred_education": "string"
+  },
+  "role_responsibilities": ["string"],
+  "salary_range": {
+    "min": "number",
+    "max": "number",
+    "currency": "string"
+  },
+  "notice_period_limit_days": "integer"
+}

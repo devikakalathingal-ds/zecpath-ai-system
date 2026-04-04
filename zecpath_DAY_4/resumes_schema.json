@@ -1,0 +1,33 @@
+{
+  "entity_type": "Resume",
+  "candidate_profile": {
+    "name": "string",
+    "contact_info": {
+      "email": "string",
+      "phone": "string",
+      "location": "string"
+    }
+  },
+  "education_structures": [
+    {
+      "degree": "string",
+      "institution": "string",
+      "graduation_year": "integer"
+    }
+  ],
+  "experience_patterns": [
+    {
+      "designation": "string",
+      "company": "string",
+      "duration_years": "number",
+      "responsibilities": ["string"]
+    }
+  ],
+  "skill_object": {
+    "technical_skills": ["string"],
+    "soft_skills": ["string"]
+  },
+  "certifications": ["string"],
+  "total_experience_years": "number",
+  "notice_period_days": "integer"
+}
