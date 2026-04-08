@@ -1,0 +1,49 @@
+Job Description Parsing System Documentation
+
+1. Introduction
+The Job Description Parsing System is designed to convert unstructured job descriptions into structured and machine-readable data.
+In real-world recruitment, job descriptions are usually written in free-text format, making it difficult for automated systems to understand
+and process the information efficiently. This system solves that problem by extracting key details such as job role, required skills, experience,
+and educational qualifications, and organizing them into a structured format that can be easily used by AI-based hiring platforms.
+
+2. Objective
+The primary objective of this system is to automate the extraction of important information from job descriptions and transform them into a consistent
+format. This helps reduce manual effort in recruitment and enables faster and more accurate candidate-job matching. By converting raw text into
+structured data, the system supports intelligent decision-making and improves the overall efficiency of the hiring process.
+
+3. Methodology
+The system works by first taking a job description as input, usually from a text file. The input text is then processed using basic Natural Language 
+Processing techniques. The first step involves cleaning and normalizing the text to ensure consistency, such as converting all characters to lowercase
+and removing unnecessary spaces. After preprocessing, the system identifies relevant information using keyword matching and pattern recognition 
+techniques.
+
+4. Skill Extraction
+Skill extraction is performed by comparing the job description text with a predefined list of common technical and professional skills such as Python,
+Java, SQL, Excel, and Machine Learning. If these keywords are found in the text, they are added to the list of required skills.
+
+5. Experience Extraction
+Experience extraction is handled using regular expressions, which detect patterns like “2 years”, “3+ years”, or similar formats.
+This allows the system to accurately identify the required years of experience mentioned in the job description.
+
+6. Role Detection
+Role detection is achieved by searching for common job titles such as Data Analyst, Software Engineer, or Machine Learning Engineer within the text.
+If a match is found, the corresponding role is assigned.
+
+7. Education Extraction
+Educational qualifications are identified by checking for keywords like “Bachelor’s”, “B.Tech”, or equivalent terms. These steps ensure that all key
+components of the job description are captured effectively.
+
+8. Output Generation
+Once all the necessary information is extracted, the system organizes it into a structured JSON format. This format includes fields such as role,
+skills, experience, and education. The structured output is easy to read, store, and process further in AI systems. It also ensures consistency across
+different job descriptions, making comparison and analysis more efficient.
+
+9. Tools Used
+The tools used in this system include Python as the programming language, along with the built-in regular expressions library for pattern matching.
+Basic NLP techniques are applied to process and analyze the text. The implementation is simple yet effective, making it suitable for integration
+into larger AI-driven recruitment systems.
+
+10. Conclusion
+The Job Description Parsing System successfully converts unstructured job descriptions into structured data. This transformation plays a crucial role
+in modern recruitment platforms by enabling automation, improving accuracy, and supporting intelligent candidate matching. The system forms a
+foundational component of AI-powered hiring solutions and can be further enhanced using advanced NLP techniques for even better performance.

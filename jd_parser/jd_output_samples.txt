@@ -1,0 +1,77 @@
+Example 1:
+
+INPUT:
+We are hiring a Data Analyst with Python and SQL skills.
+Candidates should have 2+ years of experience.
+Bachelor's degree is required.
+
+OUTPUT:
+
+[
+  {
+    "role": "Data Analyst",
+    "skills": [
+      "sql",
+      "python"
+    ],
+    "experience": "2+ years",
+    "education": "Bachelor's Degree"
+  }
+]
+
+Example 2:
+
+INPUT:
+Looking for a Software Engineer with Java and SQL. 3 years experience required.
+
+OUTPUT:
+
+[
+  {
+    "role": "Software Engineer",
+    "skills": [
+      "sql",
+      "java"
+    ],
+    "experience": "3 years",
+    "education": "Not Found"
+  }
+]
+
+Example 3:
+
+INPUT:
+ML Engineer required with Python and Machine Learning skills. Freshers can apply.
+
+OUTPUT:
+
+[
+  {
+    "role": "ML Engineer",
+    "skills": [
+      "python",
+      "machine learning"
+    ],
+    "experience": "Not Found",
+    "education": "Not Found"
+  }
+]
+
+Example 4:
+
+INPUT:
+Hiring Data Analyst. Must know Excel and Power BI. Minimum 1 year experience.
+
+OUTPUT:
+
+[
+  {
+    "role": "Data Analyst",
+    "skills": [
+      "excel",
+      "power bi"
+    ],
+    "experience": "Not Found",
+    "education": "Not Found"
+  }
+]
