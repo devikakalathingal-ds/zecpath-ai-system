@@ -1,0 +1,52 @@
+{
+    "technical": [
+        {
+            "skill": "python",
+            "confidence": 0.75
+        },
+        {
+            "skill": "java",
+            "confidence": 0.75
+        },
+        {
+            "skill": "mongodb",
+            "confidence": 0.9
+        },
+        {
+            "skill": "react",
+            "confidence": 0.9
+        },
+        {
+            "skill": "machine learning",
+            "confidence": 0.75
+        },
+        {
+            "skill": "deep learning",
+            "confidence": 0.75
+        },
+        {
+            "skill": "javascript",
+            "confidence": 0.75
+        },
+        {
+            "skill": "express",
+            "confidence": 0.9
+        },
+        {
+            "skill": "nodejs",
+            "confidence": 0.9
+        }
+    ],
+    "business": [],
+    "creative": [],
+    "soft_skills": [
+        {
+            "skill": "communication",
+            "confidence": 0.75
+        },
+        {
+            "skill": "leadership",
+            "confidence": 0.75
+        }
+    ]
+}

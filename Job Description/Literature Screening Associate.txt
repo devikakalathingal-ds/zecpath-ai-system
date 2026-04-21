@@ -1,0 +1,21 @@
+Job Summary
+
+Identifies and processes adverse event data from scientific literature and publications.
+
+Key Responsibilities
+
+• Screen medical literature for adverse event reports
+• Identify ICSRs from journals and publications
+• Extract relevant safety information
+• Perform case creation from literature sources
+• Maintain literature tracking databases
+
+Qualifications
+
+• Life Sciences / Pharmacy
+
+Skills
+
+• Literature search skills (PubMed, Embase)
+• Attention to detail
+• Scientific reading and interpretation

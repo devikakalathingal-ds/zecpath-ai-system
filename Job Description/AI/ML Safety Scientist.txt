@@ -1,0 +1,24 @@
+Job Summary
+
+Applies Machine Learning and AI techniques to pharmacovigilance for signal detection,
+risk prediction, and automation.
+
+Key Responsibilities
+
+• Develop machine learning models for safety signal detection
+• Analyze large-scale safety datasets
+• Build predictive models for adverse event risk
+• Implement NLP for literature and case processing
+• Collaborate with data scientists and PV experts
+• Validate and deploy AI solutions
+
+Qualifications
+
+• Data Science / AI / Pharmacy / Bioinformatics
+
+Skills
+
+• Python, ML frameworks (TensorFlow, Scikit-learn)
+• NLP (Natural Language Processing)
+• Statistical modeling
+• Domain knowledge in PV

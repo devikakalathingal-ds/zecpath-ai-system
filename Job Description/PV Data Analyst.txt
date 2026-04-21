@@ -1,0 +1,24 @@
+Job Summary
+
+Analyzes pharmacovigilance data to generate insights, identify trends, and support safety
+decision-making.
+
+Key Responsibilities
+
+• Extract and analyze safety data from PV databases
+• Identify trends, patterns, and anomalies in adverse event data
+• Create dashboards and reports for stakeholders
+• Support signal detection and risk assessment
+• Perform data cleaning and validation
+• Collaborate with safety and regulatory teams
+
+Qualifications
+
+• Life Sciences / Pharmacy / Data Science / Biostatistics
+
+Skills
+
+• Data analysis (Excel, SQL, Python, R)
+• Visualization tools (Power BI, Tableau)
+• Statistical knowledge
+• Analytical thinking

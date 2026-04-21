@@ -1,0 +1,23 @@
+Job Summary
+
+Uses advanced analytics and intelligence techniques to identify, prioritize, and interpret
+safety signals from large datasets.
+
+Key Responsibilities
+
+• Analyze large-scale safety datasets for signal detection
+• Apply statistical and AI-based methods
+• Prioritize and validate safety signals
+• Generate insights and dashboards
+• Collaborate with safety scientists and data teams
+
+Qualifications
+
+• Data Science / Pharmacy / Biostatistics / Life Sciences
+
+Skills
+
+• Data analytics (Python, R, SQL)
+• Machine learning basics
+• Signal detection methodologies
+• Visualization tools (Power BI, Tableau)

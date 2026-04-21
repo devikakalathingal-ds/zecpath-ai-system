@@ -1,0 +1,23 @@
+Job Summary
+
+Leverages digital technologies, social media, and AI tools to enhance pharmacovigilance
+processes and safety monitoring.
+
+Key Responsibilities
+
+• Monitor safety data from digital sources (social media, apps)
+• Implement AI and automation in PV workflows
+• Analyze unstructured data using NLP techniques
+• Support digital transformation initiatives in PV
+• Ensure compliance with regulatory guidelines for digital data
+
+Qualifications
+
+• Life Sciences / Pharmacy + Data Science / IT
+
+Skills
+
+• Digital tools and platforms
+• AI/ML and NLP
+• Data mining and analytics
+• Understanding of PV regulations

@@ -1,0 +1,21 @@
+Job Summary
+
+Identifies and evaluates safety signals from large datasets to detect potential drug risks.
+
+Key Responsibilities
+
+• Perform signal detection using safety databases
+• Analyze adverse event trends and patterns
+• Use statistical tools and algorithms
+• Validate and prioritize safety signals
+• Prepare signal evaluation reports
+
+Qualifications
+
+• Life Sciences / Pharmacy / Biostatistics
+
+Skills
+
+• Data analysis
+• Statistical knowledge
+• Signal detection tools

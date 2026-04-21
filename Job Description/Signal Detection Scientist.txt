@@ -1,0 +1,24 @@
+Job Summary
+
+Identifies, evaluates, and validates potential safety signals from large pharmacovigilance
+datasets to ensure early detection of drug-related risks.
+
+Key Responsibilities
+
+• Perform signal detection using safety databases (ICSRs, EudraVigilance, FAERS)
+• Apply statistical methods (disproportionality analysis, PRR, ROR)
+• Validate and prioritize safety signals
+• Collaborate with medical and regulatory teams for signal evaluation
+• Prepare signal detection reports and documentation
+• Support regulatory submissions and safety communications
+
+Qualifications
+
+• M.Pharm / PharmD / PhD / Biostatistics / Life Sciences
+
+Skills
+
+• Strong statistical and analytical skills
+• Knowledge of signal detection methodologies
+• Data interpretation and problem-solving
+• Experience with tools like SAS, R, Python

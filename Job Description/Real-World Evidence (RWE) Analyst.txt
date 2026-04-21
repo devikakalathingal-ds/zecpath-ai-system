@@ -1,0 +1,24 @@
+Job Summary
+
+Generates insights from real-world data (RWD) to support drug safety, effectiveness, and
+regulatory decisions.
+
+Key Responsibilities
+
+• Analyze real-world datasets (EHR, claims data, registries)
+• Generate evidence for safety and effectiveness
+• Support post-marketing surveillance studies
+• Develop RWE reports for regulatory submissions
+• Collaborate with cross-functional teams
+• Ensure data quality and compliance
+
+Qualifications
+
+• Life Sciences / Data Science / Epidemiology / Pharmacy
+
+Skills
+
+• Data analytics (SQL, Python, R)
+• Knowledge of healthcare databases
+• Statistical modeling
+• Critical thinking

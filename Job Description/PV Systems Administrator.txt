@@ -1,0 +1,23 @@
+Job Summary
+
+Responsible for administration, maintenance, and support of pharmacovigilance IT systems.
+
+Key Responsibilities
+
+• Manage PV systems (Argus, Veeva Safety, ArisG)
+• Handle system configuration and user management
+• Monitor system performance and security
+• Support system validation (CSV)
+• Ensure compliance with regulatory requirements
+• Provide technical support and training
+
+Qualifications
+
+• IT / Computer Science / Life Sciences
+
+Skills
+
+• System administration
+• Database knowledge
+• Regulatory compliance (CSV, 21 CFR Part 11)
+• Troubleshooting skills

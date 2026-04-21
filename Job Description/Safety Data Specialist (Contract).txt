@@ -1,0 +1,23 @@
+Job Summary
+
+Manages and analyzes pharmacovigilance data on a contract basis, ensuring data quality and
+regulatory compliance.
+
+Key Responsibilities
+
+• Enter, clean, and validate safety data
+• Manage safety databases (Argus, Veeva, ArisG)
+• Generate reports and dashboards
+• Support signal detection and analysis
+• Ensure data integrity and compliance
+
+Qualifications
+
+• Life Sciences / Pharmacy / Data-related background
+
+Skills
+
+• Data management
+• Database tools
+• Analytical skills
+• Attention to detail

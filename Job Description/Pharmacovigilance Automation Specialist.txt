@@ -1,0 +1,23 @@
+Job Summary
+
+Designs and implements automation solutions to improve pharmacovigilance processes.
+
+Key Responsibilities
+
+• Automate case processing workflows (RPA, scripting)
+• Develop tools for data extraction and reporting
+• Improve efficiency and reduce manual errors
+• Collaborate with IT and PV teams
+• Implement AI-based solutions in PV processes
+• Monitor automation performance
+
+Qualifications
+
+• Life Sciences + IT / Computer Science / Engineering
+
+Skills
+
+• RPA tools (UiPath, Automation Anywhere)
+• Python / scripting
+• Process optimization
+• Understanding of PV workflows

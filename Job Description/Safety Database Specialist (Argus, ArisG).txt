@@ -1,0 +1,24 @@
+Job Summary
+
+Manages and maintains pharmacovigilance safety databases such as Oracle Argus Safety
+and ArisGlobal (ArisG).
+
+Key Responsibilities
+
+• Configure and maintain PV databases
+• Manage user access and system workflows
+• Perform data migration and system upgrades
+• Troubleshoot technical issues
+• Ensure data integrity and compliance
+• Support audits and inspections
+
+Qualifications
+
+• Life Sciences / IT / Pharmacy
+
+Skills
+
+• Database management
+• Knowledge of Argus / ArisG systems
+• SQL and system configuration
+• Problem-solving skills
