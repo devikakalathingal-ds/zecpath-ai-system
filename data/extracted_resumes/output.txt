@@ -1,0 +1,17 @@
+john doe 
+email: john@example.com 
+phone: 9876543210 
+
+skills
+python
+machine
+learning
+sql
+data
+analysis
+
+experience
+ data analyst at abc company 2022 2024 worked on data cleaning, visualization, and reporting tasks. 
+
+education
+ bachelor of science in computer science xyz university 2018 2022

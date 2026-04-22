@@ -1,23 +1,40 @@
 import time
-from parsers.resume_reader import extract_text
+import os
+
+from parsers.resume_reader import read_resume
 from parsers.text_cleaner import clean_text
 from parsers.normalizer import normalize_text
 
-file_path = "sample_resume.pdf"   # Put your resume file in main project folder
+
+# Resume file (inside resumes folder)
+file_path = os.path.join("resumes", "sample_resume.pdf")
 
 start = time.time()
 
-raw_text = extract_text(file_path)
+# Step 1: Read resume
+raw_text = read_resume(file_path)
+
+# Step 2: Clean text
 cleaned_text = clean_text(raw_text)
+
+# Step 3: Normalize text
 normalized_text = normalize_text(cleaned_text)
 
 end = time.time()
 
+# Output stats
+print("\n===== RESUME TEST OUTPUT =====\n")
 print("Raw Length:", len(raw_text))
 print("Cleaned Length:", len(cleaned_text))
-print("Processing Time:", end - start)
+print("Processing Time:", round(end - start, 4), "seconds")
+
+# Ensure output folder exists
+os.makedirs("data/extracted_resumes", exist_ok=True)
 
 # Save output
-with open("data/extracted_resumes/output.txt", "w", encoding="utf-8") as f:
+output_path = "data/extracted_resumes/output.txt"
+with open(output_path, "w", encoding="utf-8") as f:
     f.write(normalized_text)
-print("Resume processed successfully!")
+
+print("\n✅ Resume processed successfully!")
+print("Saved at:", output_path)
