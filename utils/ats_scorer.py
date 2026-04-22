@@ -1,37 +1,36 @@
 def calculate_ats_score(resume_skills, job_description):
     """
     Calculates ATS score based on skill matching with job description.
-
     Returns:
-        score (float): percentage score
-        matched (list): skills found in job description
-        missing (list): skills not found in job description
+        score (float)
+        matched (list)
+        missing (list)
     """
 
-    # If no skills found in resume
     if not resume_skills:
         return 0.0, [], []
 
     jd = job_description.lower()
 
-    # Normalize job description (remove spaces/newlines)
-    jd_compact = jd.replace(" ", "").replace("\n", "")
-
     matched = []
     missing = []
 
-    for skill in resume_skills:
-        skill_compact = skill.lower().replace(" ", "")
+    # Flatten skills from your extractor
+    flat_skills = []
 
-        if skill_compact in jd_compact:
+    if isinstance(resume_skills, dict):
+        for category in resume_skills.values():
+            for item in category:
+                flat_skills.append(item["skill"])
+    else:
+        flat_skills = resume_skills
+
+    for skill in flat_skills:
+        if skill.lower() in jd:
             matched.append(skill)
         else:
             missing.append(skill)
 
-    # Avoid division by zero
-    if len(resume_skills) == 0:
-        score = 0.0
-    else:
-        score = (len(matched) / len(resume_skills)) * 100
+    score = (len(matched) / len(flat_skills)) * 100 if flat_skills else 0.0
 
     return round(score, 2), matched, missing
