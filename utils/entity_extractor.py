@@ -1,61 +1,44 @@
 import re
 
 def extract_entities(text):
+
+    if not text:
+        return {}
+
     data = {}
 
-    # Email
+    # -------------------------
+    # EMAIL
+    # -------------------------
     email = re.findall(r'\S+@\S+', text)
     data["email"] = email[0] if email else None
 
-    # Phone
+    # -------------------------
+    # PHONE
+    # -------------------------
     phone = re.findall(r'\b\d{10}\b', text)
     data["phone"] = phone[0] if phone else None
 
-    # Initialize
-    data["skills"] = []
-    data["experience"] = None
-    data["education"] = None
-
-  # ✅ FORCE SKILL EXTRACTION (works always)
-
-    known_skills = [
-        "python",
-        "sql",
-        "machine learning",
-        "data science",
-        "deep learning",
-        "excel",
-        "power bi"
-    ]
-
     text_lower = text.lower()
 
-    skills_found = []
+    # -------------------------
+    # SKILLS (SAFE MATCH)
+    # -------------------------
+    known_skills = [
+        "python", "sql", "react",
+        "machine learning", "data analysis",
+        "excel", "power bi"
+    ]
 
-    text_compact = text_lower.replace(" ", "").replace("\n", "")
+    data["skills"] = [
+        skill for skill in known_skills
+        if skill in text_lower
+    ]
 
-    skills_found=[]
-
-    for skill in known_skills:
-        skill_compact=skill.replace(" ","")
-
-        if skill_compact in text_compact:
-             skills_found.append(skill)
-
-    data["skills"] = skills_found
-
-    # -------- EXPERIENCE --------
-    if "experience" in text_lower:
-        exp_part = text_lower.split("experience")[1]
-
-        if "education" in exp_part:
-            exp_part = exp_part.split("education")[0]
-
-        data["experience"] = exp_part.strip()
-
-    # -------- EDUCATION --------
-    if "education" in text_lower:
-        edu_part = text_lower.split("education")[1]
-        data["education"] = edu_part.strip()
+    # -------------------------
+    # IMPORTANT RULE:
+    # DO NOT PARSE EXPERIENCE / EDUCATION HERE
+    # (already handled in main.py)
+    # -------------------------
 
     return data

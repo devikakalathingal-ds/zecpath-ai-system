@@ -1,53 +1,33 @@
 import re
 
-CERTIFICATION_KEYWORDS = [
-    "aws", "google", "microsoft", "coursera", "udemy", "edx"
-]
+CERT_KEYWORDS = ["coursera", "udemy", "edx", "aws", "google", "microsoft"]
 
 def extract_certifications(text):
 
-    certifications = []
+    if not text:
+        return []
 
     text_lower = text.lower()
 
-    # Extract certification section
-    match = re.search(r"certifications?:?(.*)", text_lower, re.DOTALL)
+    match = re.search(
+        r"certifications?(.*?)(experience|education|skills|$)",
+        text_lower,
+        re.DOTALL
+    )
 
-    if match:
-        section_text = match.group(1)
+    if not match:
+        return []
 
-        # STEP 1: Split by commas, newlines etc.
-        parts = re.split(r",|\n|•|-|\|", section_text)
+    section = match.group(1)
 
-        for part in parts:
-            part = part.strip()
+    lines = [l.strip() for l in section.split("\n") if l.strip()]
 
-            # STEP 2: Further split if multiple certs in same line
-            split_parts = re.split(r"(aws|google|microsoft|coursera|udemy|edx)", part)
+    certs = []
 
-            temp = ""
-            for sp in split_parts:
-                sp = sp.strip()
-                if not sp:
-                    continue
+    for line in lines:
+        for key in CERT_KEYWORDS:
+            if key in line:
+                certs.append(line.strip())
+                break
 
-                if sp in CERTIFICATION_KEYWORDS:
-                    if temp:
-                        certifications.append(temp.strip())
-                    temp = sp
-                else:
-                    temp += " " + sp
-
-            if temp:
-                certifications.append(temp.strip())
-
-    # REMOVE DUPLICATES + CLEAN
-    clean_list = []
-    seen = set()
-
-    for cert in certifications:
-        if len(cert) > 5 and cert not in seen:
-            clean_list.append(cert)
-            seen.add(cert)
-
-    return clean_list
+    return list(set(certs))

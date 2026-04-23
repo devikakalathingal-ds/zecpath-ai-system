@@ -1,120 +1,50 @@
 import re
-import fitz  # PyMuPDF
-from datetime import datetime
-
-
-# ---------------- FILE TEXT EXTRACTION ---------------- #
-
-def extract_text(file_path):
-
-    # If PDF
-    if file_path.endswith(".pdf"):
-        text = ""
-        doc = fitz.open(file_path)
-        for page in doc:
-            text += page.get_text()
-        return text
-
-    # If TXT
-    elif file_path.endswith(".txt"):
-        with open(file_path, "r", encoding="utf-8") as file:
-            return file.read()
-
-    else:
-        return ""
-
-
-# ---------------- EXPERIENCE EXTRACTION ---------------- #
 
 def extract_experience(text):
 
-    experience_list = []
+    if not text:
+        return []
 
-    pattern = r"(?P<role>[A-Za-z ]+)\s+at\s+(?P<company>[A-Za-z ]+)\s+\((?P<start>\w+ \d{4})\s*-\s*(?P<end>\w+ \d{4}|Present)\)"
+    text_lower = text.lower()
 
-    matches = re.finditer(pattern, text)
+    # must have experience section
+    if "experience" not in text_lower:
+        return []
 
-    for match in matches:
-        role = match.group("role").strip()
-        company = match.group("company").strip()
-        start = match.group("start")
-        end = match.group("end")
+    # isolate only experience section
+    exp_section = text_lower.split("experience")[-1]
 
-        duration = calculate_duration(start, end)
+    # stop at next section if exists
+    for stop_word in ["education", "skills", "certifications"]:
+        if stop_word in exp_section:
+            exp_section = exp_section.split(stop_word)[0]
 
-        experience_list.append({
-            "role": role,
-            "company": company,
-            "start_date": start,
-            "end_date": end,
-            "duration_years": round(duration, 2)
-        })
+    lines = [l.strip() for l in exp_section.split("\n") if l.strip()]
 
-    return experience_list
+    experiences = []
+    current = None
 
+    for line in lines:
 
-# ---------------- DURATION CALCULATION ---------------- #
+        line_lower = line.lower()
 
-def calculate_duration(start, end):
+        # detect company
+        if any(k in line_lower for k in ["ltd", "pvt", "limited", "company", "analytics", "healthcare"]):
+            current = {
+                "company": line,
+                "role": "",
+                "details": []
+            }
+            experiences.append(current)
+            continue
 
-    start_date = datetime.strptime(start, "%b %Y")
+        # detect role
+        if current and any(k in line_lower for k in ["intern", "engineer", "analyst", "scientist", "developer"]):
+            current["role"] = line
+            continue
 
-    if end.lower() == "present":
-        end_date = datetime.now()
-    else:
-        end_date = datetime.strptime(end, "%b %Y")
+        # add details only if experience exists
+        if current:
+            current["details"].append(line)
 
-    return (end_date - start_date).days / 365
-
-
-def calculate_total_experience(experience_list):
-
-    total = sum(exp["duration_years"] for exp in experience_list)
-    return round(total, 2)
-
-
-# ---------------- RELEVANCE CALCULATION ---------------- #
-
-def calculate_relevance(job_description, experience_list):
-
-    jd_words = set(job_description.lower().split())
-
-    score = 0
-    max_score = len(experience_list) * 100
-
-    for exp in experience_list:
-        role_words = set(exp["role"].lower().split())
-
-        if jd_words.intersection(role_words):
-            score += 100
-
-    if max_score == 0:
-        return 0
-
-    return round((score / max_score) * 100, 2)
-
-
-# ---------------- MAIN EXECUTION ---------------- #
-
-if __name__ == "__main__":
-
-    resume_path = "resumes/sample_resume.pdf"
-    jd_path = "Job Description/Aggregate Report Writer.txt"
-
-    # Extract resume text
-    resume_text = extract_text(resume_path)
-
-    # Extract JD text
-    jd_text = extract_text(jd_path)
-
-    # Extract experience
-    experience = extract_experience(resume_text)
-
-    print("Extracted Experience:")
-    print(experience)
-
-    total = calculate_total_experience(experience)
-    print("Total Experience:", total, "years")
-
-    relevance_score = calculate_relevance(jd_text, experience)
-    print("Relevance Score:", relevance_score, "%")
+    return experiences
