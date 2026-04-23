@@ -1,0 +1,67 @@
+{
+    "sections": {
+        "Skills": "",
+        "Work Experience": "",
+        "Education": ": b.tech in computer science abc university 2023 \n\n",
+        "Projects": "",
+        "Certifications": "",
+        "Others": "john doe software engineer \n\n"
+    },
+    "education": [
+        {
+            "degree": "B.Tech",
+            "details": ": b.tech in computer science abc university 2023",
+            "graduation_year": "2023"
+        }
+    ],
+    "certifications": [
+        "aws certified cloud practitioner",
+        "google data analytics certification"
+    ],
+    "academic_profile": {
+        "education": [
+            {
+                "degree": "B.Tech",
+                "institution": "",
+                "graduation_year": "2023"
+            }
+        ],
+        "certifications": [
+            {
+                "name": "aws certified cloud practitioner",
+                "issuer": "AWS"
+            },
+            {
+                "name": "google data analytics certification",
+                "issuer": "Google"
+            }
+        ]
+    },
+    "skills": {
+        "technical": [
+            {
+                "skill": "python",
+                "confidence": 0.75
+            }
+        ],
+        "business": [],
+        "creative": [],
+        "soft_skills": []
+    },
+    "experience": [],
+    "ats_score": 100.0,
+    "matched_skills": [
+        "python"
+    ],
+    "missing_skills": [],
+    "relevance": 1,
+    "entities": {
+        "email": null,
+        "phone": null,
+        "skills": [
+            "python"
+        ],
+        "experience": ": intern at infosys worked on python backend systems certifications: aws certified cloud practitioner google data analytics certification",
+        "education": ": b.tech in computer science abc university 2023 \n\nexperience\n: intern at infosys worked on python backend systems certifications: aws certified cloud practitioner google data analytics certification"
+    }
+}

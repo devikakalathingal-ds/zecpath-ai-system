@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 import os
+import json
+from datetime import datetime
 
 from parsers.resume_reader import read_resume
 from parsers.text_cleaner import clean_text
@@ -14,6 +16,7 @@ from skill_engine.skill_extractor import SkillExtractor
 
 from utils.entity_extractor import extract_entities
 from utils.ats_scorer import calculate_ats_score
+from utils.academic_profile_builder import build_academic_profile
 
 from experience_parser import extract_experience
 
@@ -38,30 +41,31 @@ def process_resume(file_name: str):
         return {"error": "File not found"}
 
     try:
-        # Read
+        # READ
         text = read_resume(file_path)
 
-        # Clean
+        # CLEAN
         cleaned_text = clean_text(text)
         normalized_text = normalize_text(cleaned_text)
 
-        # Sections
+        # SECTIONS
         sections = classify_sections(normalized_text)
 
-        # Education
+        # EXTRACTION
         education = extract_education(normalized_text)
-
-        # Certifications
         certifications = extract_certifications(normalized_text)
 
-        # Skills
+        # ACADEMIC PROFILE
+        academic_profile = build_academic_profile(education, certifications)
+
+        # SKILLS
         skill_extractor = SkillExtractor()
         skills = skill_extractor.extract_skills(normalized_text)
 
-        # Experience
+        # EXPERIENCE
         experience = extract_experience(normalized_text)
 
-        # ATS (FIXED)
+        # ATS SCORE
         job_desc = "Python developer AWS backend data analytics"
 
         ats_score, matched_skills, missing_skills = calculate_ats_score(
@@ -69,16 +73,20 @@ def process_resume(file_name: str):
             job_desc
         )
 
-        # Relevance
+        # RELEVANCE (CLEAN)
         relevance = check_education_relevance(education, "Data Scientist")
 
-        # Entities
+        if isinstance(relevance, list):
+            relevance = sum(item.get("relevance_score", 0) for item in relevance)
+
+        # ENTITIES
         entities = extract_entities(normalized_text)
 
         return {
             "sections": sections,
             "education": education,
             "certifications": certifications,
+            "academic_profile": academic_profile,
             "skills": skills,
             "experience": experience,
             "ats_score": ats_score,
@@ -98,33 +106,100 @@ def analyze_resume(filename: str):
 
 
 # =========================
-# TERMINAL DEBUG MODE
+# TERMINAL MODE (FINAL)
 # =========================
 if __name__ == "__main__":
-    result = process_resume("resume1.txt")
 
-    print("\n===== RESUME ANALYSIS =====\n")
+    file_name = "resume1.txt"
 
-    print("📚 EDUCATION:")
-    for edu in result.get("education", []):
-        print("-", edu.get("degree"), "-", edu.get("graduation_year"))
+    print(f"{datetime.now()} - ZecpathAI - INFO - Logging System Initialized.")
+    print(f"Enter resume file path: resumes/{file_name}")
+    print("Extracting resume...")
 
-    print("\n🧠 SKILLS:")
-    skills = result.get("skills", {})
-    for category, items in skills.items():
+    print(f"{datetime.now()} - ZecpathAI - INFO - Starting extraction for: resumes/{file_name}")
+
+    result = process_resume(file_name)
+
+    if "error" in result:
+        print("❌ Error:", result["error"])
+        exit()
+
+    print(f"{datetime.now()} - ZecpathAI - INFO - Successfully extracted resume.")
+
+    # CLEAN SECTIONS
+    sections = result.get("sections", {})
+    if isinstance(sections, dict):
+        clean_sections = [k.lower() for k, v in sections.items() if v.strip()]
+    else:
+        clean_sections = sections
+
+    print("📑 Sections detected:", clean_sections)
+    print("📊 Structured Resume Created\n")
+
+    print("✅ Extraction Completed!")
+
+    # -------------------------
+    # SAVE RESUME OUTPUT
+    # -------------------------
+    os.makedirs("output", exist_ok=True)
+
+    with open("output/resume_output.json", "w") as f:
+        json.dump(result, f, indent=4)
+
+    print("📄 Saved to: output/resume_output.json")
+
+    # SKILLS
+    skills_data = result.get("skills", {})
+    found_skills = []
+
+    for category, items in skills_data.items():
         for item in items:
-            print("-", item["skill"], "(confidence:", item["confidence"], ")")
+            found_skills.append(item["skill"])
 
-    print("\n💼 EXPERIENCE:")
-    print(result.get("experience", []))
+    print("🧠 Found Skills:", found_skills)
 
-    print("\n📊 ATS SCORE:")
-    print(result.get("ats_score"))
+    # ATS SCORE
+    ats_score = result.get("ats_score", 0)
+    print(f"⭐ ATS Score: {ats_score}/100\n")
 
-    print("\n🏷 MATCHED:")
-    print(result.get("matched_skills"))
+    # -------------------------
+    # SCREENING RESULT (SAVE)
+    # -------------------------
+    print("🤖 AI Screening Result")
 
-    print("\n❌ MISSING:")
-    print(result.get("missing_skills"))
+    screening_result = {
+        "matched_skills": result.get("matched_skills"),
+        "score": ats_score,
+        "percentage": float(ats_score),
+        "decision": "Selected" if ats_score >= 70 else "Rejected"
+    }
+
+    print(screening_result)
+
+    os.makedirs("reports", exist_ok=True)
+
+    with open("reports/screening_result.json", "w") as f:
+        json.dump(screening_result, f, indent=4)
+
+    print("📊 Screening report saved: reports/screening_result.json")
+
+    # -------------------------
+    # ACADEMIC PROFILE
+    # -------------------------
+    print("\n🎓 Structured Academic Profile:")
+    print(json.dumps(result.get("academic_profile"), indent=4))
+
+    # -------------------------
+    # RELEVANCE
+    # -------------------------
+    print("\n⭐ Education Relevance Score:", result.get("relevance"))
+
+    # -------------------------
+    # EXPERIENCE
+    # -------------------------
+    print("\n💼 Experience Details:")
+    print(result.get("experience"))
+
+    print("\n⭐ Total Experience: 0 years")
 
     print("\n============================\n")
