@@ -4,13 +4,12 @@ from datetime import datetime
 import numpy as np
 
 from fastapi import FastAPI
-
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 
-# -------------------------
-# PARSERS (your existing structure)
-# -------------------------
+# =========================
+# PARSERS
+# =========================
 from parsers.resume_reader import read_resume
 from parsers.text_cleaner import clean_text
 from parsers.normalizer import normalize_text
@@ -22,22 +21,26 @@ from experience_parser import extract_experience
 
 from skill_engine.skill_extractor import SkillExtractor
 from utils.entity_extractor import extract_entities
-from utils.ats_scorer import calculate_ats_score
 from utils.academic_profile_builder import build_academic_profile
 
+# =========================
+# ATS ENGINE (DAY 13)
+# =========================
+from ats_engine.scorer import calculate_final_score
 
-# -------------------------
+
+# =========================
 # FASTAPI APP
-# -------------------------
+# =========================
 app = FastAPI()
 
 RESUME_FOLDER = "resumes"
 JD_FOLDER = "Job Description"
 
 
-# -------------------------
+# =========================
 # MODEL
-# -------------------------
+# =========================
 model = SentenceTransformer("all-MiniLM-L6-v2")
 
 
@@ -49,9 +52,9 @@ def cosine_score(a, b):
     return cosine_similarity([a], [b])[0][0]
 
 
-# -------------------------
-# SAFE JSON
-# -------------------------
+# =========================
+# SAFE JSON HANDLER
+# =========================
 def make_json_safe(obj):
     if isinstance(obj, dict):
         return {k: make_json_safe(v) for k, v in obj.items()}
@@ -62,9 +65,9 @@ def make_json_safe(obj):
     return obj
 
 
-# -------------------------
-# LOAD JD
-# -------------------------
+# =========================
+# LOAD JOB DESCRIPTION
+# =========================
 def load_single_jd(file_name):
     path = os.path.join(JD_FOLDER, file_name)
 
@@ -75,9 +78,9 @@ def load_single_jd(file_name):
         return {"name": file_name, "text": f.read()}
 
 
-# -------------------------
-# PIPELINE
-# -------------------------
+# =========================
+# MAIN PIPELINE
+# =========================
 def process_resume(file_name):
 
     file_path = os.path.join(RESUME_FOLDER, file_name)
@@ -85,74 +88,97 @@ def process_resume(file_name):
     if not os.path.exists(file_path):
         return {"error": "Resume not found"}
 
-    # RAW TEXT
+    # -------------------------
+    # STEP 1: READ + CLEAN
+    # -------------------------
     raw_text = read_resume(file_path)
-
-    # CLEANING
     cleaned_text = clean_text(raw_text)
     normalized_text = normalize_text(cleaned_text)
 
-    # SECTION CLASSIFICATION
-    sections = classify_sections(normalized_text)
+    classify_sections(normalized_text)
 
     # -------------------------
-    # SKILLS (FIXED HERE)
+    # STEP 2: SKILLS
     # -------------------------
     skill_extractor = SkillExtractor()
-    skills = skill_extractor.extract_skills(normalized_text)
+    skills_raw = skill_extractor.extract_skills(normalized_text)
+
+    skills = []
+
+    if isinstance(skills_raw, dict):
+        for key in ["technical", "business", "creative", "soft_skills"]:
+            for item in skills_raw.get(key, []):
+                if isinstance(item, dict):
+                    skills.append(item.get("skill"))
+                else:
+                    skills.append(item)
+
+    elif isinstance(skills_raw, list):
+        for item in skills_raw:
+            if isinstance(item, dict):
+                skills.append(item.get("skill"))
+            else:
+                skills.append(item)
+
+    skills = [s for s in skills if s]
 
     # -------------------------
-    # EDUCATION
+    # STEP 3: EDUCATION
     # -------------------------
     education = extract_education(raw_text)
 
     # -------------------------
-    # CERTIFICATIONS
+    # STEP 4: CERTIFICATIONS
     # -------------------------
     certifications = extract_certifications(raw_text)
 
     # -------------------------
-    # EXPERIENCE (FIXED MODULE)
+    # STEP 5: EXPERIENCE
     # -------------------------
     experience = extract_experience(raw_text)
 
     # -------------------------
-    # ENTITIES
+    # STEP 6: ENTITIES
     # -------------------------
     entities = extract_entities(raw_text)
 
     academic_profile = build_academic_profile(education, certifications)
 
     # -------------------------
-    # ATS SCORE
-    # -------------------------
-    jd_keywords = "Drug safety pharmacovigilance clinical data analysis Python SQL"
-
-    ats_score, matched_skills, missing_skills = calculate_ats_score(
-        skills,
-        jd_keywords
-    )
-
-    # -------------------------
-    # JOB DESCRIPTION
+    # STEP 7: JOB DESCRIPTION
     # -------------------------
     jd = load_single_jd("Drug Safety Scientist.txt")
 
     if jd is None:
         return {"error": "Job Description not found"}
 
+    jd_text = jd["text"]
+
+    # -------------------------
+    # STEP 8: SEMANTIC SCORE
+    # -------------------------
     resume_emb = get_embedding(normalized_text)
-    jd_emb = get_embedding(jd["text"])
+    jd_emb = get_embedding(jd_text)
 
-    embedding_score = cosine_score(resume_emb, jd_emb) * 100
+    embedding_score = cosine_score(resume_emb, jd_emb)
 
     # -------------------------
-    # FINAL SCORE
+    # STEP 9: ATS SCORING ENGINE (FINAL)
     # -------------------------
-    final_score = (ats_score * 0.45) + (embedding_score * 0.55)
+    final_score, breakdown = calculate_final_score(
+        skills=skills,
+        experience=experience,
+        education=education,
+        embedding_score=embedding_score,
+        jd_text=jd_text,
+        role="software_engineer"
+    )
 
     decision = "Selected" if final_score >= 55 else "Rejected"
 
+    # -------------------------
+    # FINAL OUTPUT
+    # -------------------------
     result = {
         "resume_file": file_name,
         "job_description": jd["name"],
@@ -164,26 +190,26 @@ def process_resume(file_name):
         "entities": entities,
         "academic_profile": academic_profile,
 
-        "ats_score": float(ats_score),
-        "embedding_score": float(embedding_score),
-        "final_score": float(final_score),
+        "ats_breakdown": breakdown,
+        "embedding_score": float(embedding_score * 100),
+        "final_score": final_score,
         "decision": decision
     }
 
     return make_json_safe(result)
 
 
-# -------------------------
+# =========================
 # API ENDPOINT
-# -------------------------
+# =========================
 @app.get("/analyze/{filename}")
 def analyze_resume(filename: str):
     return process_resume(filename)
 
 
-# -------------------------
+# =========================
 # RUN MODE
-# -------------------------
+# =========================
 if __name__ == "__main__":
 
     file_name = "resume6.txt"
@@ -200,9 +226,8 @@ if __name__ == "__main__":
     print("\n💼 Experience:", json.dumps(result["experience"], indent=2))
     print("\n🏷 Entities:", json.dumps(result["entities"], indent=2))
 
-    print("\n⭐ ATS Score:", result["ats_score"])
-    print("📊 Embedding Score:", result["embedding_score"])
-    print("🏁 Final Score:", result["final_score"])
+    print("\n📊 ATS Breakdown:", json.dumps(result["ats_breakdown"], indent=2))
+    print("\n⭐ Final Score:", result["final_score"])
     print("🎯 Decision:", result["decision"])
 
     os.makedirs("output", exist_ok=True)

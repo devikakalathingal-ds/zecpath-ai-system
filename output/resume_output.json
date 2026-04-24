@@ -1,34 +1,13 @@
 {
     "resume_file": "resume6.txt",
     "job_description": "Drug Safety Scientist.txt",
-    "skills": {
-        "technical": [
-            {
-                "skill": "python",
-                "confidence": 0.85
-            },
-            {
-                "skill": "sql",
-                "confidence": 0.75
-            },
-            {
-                "skill": "react",
-                "confidence": 0.85
-            },
-            {
-                "skill": "machine learning",
-                "confidence": 0.75
-            }
-        ],
-        "business": [
-            {
-                "skill": "data analysis",
-                "confidence": 0.85
-            }
-        ],
-        "creative": [],
-        "soft_skills": []
-    },
+    "skills": [
+        "python",
+        "sql",
+        "react",
+        "machine learning",
+        "data analysis"
+    ],
     "education": [
         {
             "degree": "bachelor of pharmacy (b.pharm)",
@@ -36,8 +15,8 @@
         }
     ],
     "certifications": [
-        "pharmacovigilance certification - udemy",
-        "clinical data management basics - coursera"
+        "clinical data management basics - coursera",
+        "pharmacovigilance certification - udemy"
     ],
     "experience": [
         {
@@ -76,17 +55,33 @@
         ],
         "certifications": [
             {
-                "name": "pharmacovigilance certification - udemy",
-                "issuer": "Udemy"
-            },
-            {
                 "name": "clinical data management basics - coursera",
                 "issuer": "Coursera"
+            },
+            {
+                "name": "pharmacovigilance certification - udemy",
+                "issuer": "Udemy"
             }
         ]
     },
-    "ats_score": 60.0,
+    "ats_breakdown": {
+        "skill": 83.33333333333334,
+        "experience": 60.0,
+        "education": 70.0,
+        "semantic": 62.7859001159668,
+        "weights": {
+            "skill": 0.4,
+            "experience": 0.3,
+            "education": 0.1,
+            "semantic": 0.2
+        },
+        "explanation": [
+            "Strong skill match",
+            "Relevant experience found",
+            "Education aligns with role"
+        ]
+    },
     "embedding_score": 62.7859001159668,
-    "final_score": 61.53224563598633,
+    "final_score": 70.89,
     "decision": "Selected"
 }
