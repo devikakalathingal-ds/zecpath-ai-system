@@ -3,7 +3,10 @@ import json
 from datetime import datetime
 import numpy as np
 
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile, File
+import shutil
+import uuid
+
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -24,10 +27,9 @@ from utils.entity_extractor import extract_entities
 from utils.academic_profile_builder import build_academic_profile
 
 # =========================
-# ATS ENGINE (DAY 13)
+# ATS ENGINE
 # =========================
 from ats_engine.scorer import calculate_final_score
-
 
 # =========================
 # FASTAPI APP
@@ -35,8 +37,6 @@ from ats_engine.scorer import calculate_final_score
 app = FastAPI()
 
 RESUME_FOLDER = "resumes"
-JD_FOLDER = "Job Description"
-
 
 # =========================
 # MODEL
@@ -66,24 +66,9 @@ def make_json_safe(obj):
 
 
 # =========================
-# LOAD JOB DESCRIPTION
-# =========================
-def load_single_jd(file_name):
-    path = os.path.join(JD_FOLDER, file_name)
-
-    if not os.path.exists(path):
-        return None
-
-    with open(path, "r", encoding="utf-8") as f:
-        return {"name": file_name, "text": f.read()}
-
-
-# =========================
 # MAIN PIPELINE
 # =========================
-def process_resume(file_name):
-
-    file_path = os.path.join(RESUME_FOLDER, file_name)
+def process_resume(file_path, jd_text=None):
 
     if not os.path.exists(file_path):
         return {"error": "Resume not found"}
@@ -147,12 +132,8 @@ def process_resume(file_name):
     # -------------------------
     # STEP 7: JOB DESCRIPTION
     # -------------------------
-    jd = load_single_jd("Drug Safety Scientist.txt")
-
-    if jd is None:
-        return {"error": "Job Description not found"}
-
-    jd_text = jd["text"]
+    if jd_text is None:
+        return {"error": "Job description is required"}
 
     # -------------------------
     # STEP 8: SEMANTIC SCORE
@@ -163,7 +144,7 @@ def process_resume(file_name):
     embedding_score = cosine_score(resume_emb, jd_emb)
 
     # -------------------------
-    # STEP 9: ATS SCORING ENGINE (FINAL)
+    # STEP 9: ATS SCORING
     # -------------------------
     final_score, breakdown = calculate_final_score(
         skills=skills,
@@ -180,16 +161,13 @@ def process_resume(file_name):
     # FINAL OUTPUT
     # -------------------------
     result = {
-        "resume_file": file_name,
-        "job_description": jd["name"],
-
+        "resume_file": os.path.basename(file_path),
         "skills": skills,
         "education": education,
         "certifications": certifications,
         "experience": experience,
         "entities": entities,
         "academic_profile": academic_profile,
-
         "ats_breakdown": breakdown,
         "embedding_score": float(embedding_score * 100),
         "final_score": final_score,
@@ -200,39 +178,69 @@ def process_resume(file_name):
 
 
 # =========================
-# API ENDPOINT
+# API 1: UPLOAD RESUME
 # =========================
-@app.get("/analyze/{filename}")
-def analyze_resume(filename: str):
-    return process_resume(filename)
+@app.post("/upload")
+def upload_resume(file: UploadFile = File(...)):
+    try:
+        os.makedirs(RESUME_FOLDER, exist_ok=True)
+
+        file_id = str(uuid.uuid4())
+
+        # ✅ KEEP ORIGINAL EXTENSION
+        file_ext = file.filename.split(".")[-1]
+        file_path = os.path.join(RESUME_FOLDER, f"{file_id}.{file_ext}")
+
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+
+        return {
+            "status": "success",
+            "file_path": file_path
+        }
+
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
 
 
 # =========================
-# RUN MODE
+# API 2: ANALYZE RESUME
+# =========================
+@app.post("/analyze")
+def analyze_resume(file_path: str, job_description: str):
+    try:
+        result = process_resume(file_path, job_description)
+
+        return {
+            "status": "success",
+            "data": result
+        }
+
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": str(e)
+        }
+
+
+# =========================
+# RUN MODE (OPTIONAL)
 # =========================
 if __name__ == "__main__":
 
-    file_name = "resume6.txt"
+    print(f"{datetime.now()} - ATS API Started 🚀")
 
-    print(f"{datetime.now()} - ZecpathAI Started 🚀")
+    test_file = os.path.join(RESUME_FOLDER, "resume6.txt")
 
-    result = process_resume(file_name)
+    if os.path.exists(test_file):
+        result = process_resume(test_file, "Looking for Python developer")
 
-    print("\n📄 Resume:", result["resume_file"])
-    print("📄 Job:", result["job_description"])
+        print("\n⭐ Final Score:", result["final_score"])
+        print("🎯 Decision:", result["decision"])
 
-    print("\n🧠 Skills:", json.dumps(result["skills"], indent=2))
-    print("\n🎓 Education:", json.dumps(result["education"], indent=2))
-    print("\n💼 Experience:", json.dumps(result["experience"], indent=2))
-    print("\n🏷 Entities:", json.dumps(result["entities"], indent=2))
+        os.makedirs("output", exist_ok=True)
 
-    print("\n📊 ATS Breakdown:", json.dumps(result["ats_breakdown"], indent=2))
-    print("\n⭐ Final Score:", result["final_score"])
-    print("🎯 Decision:", result["decision"])
+        with open("output/resume_output.json", "w", encoding="utf-8") as f:
+            json.dump(result, f, indent=4)
 
-    os.makedirs("output", exist_ok=True)
-
-    with open("output/resume_output.json", "w", encoding="utf-8") as f:
-        json.dump(result, f, indent=4)
-
-    print("\n📁 Saved: output/resume_output.json")
+        print("\n📁 Saved: output/resume_output.json")
