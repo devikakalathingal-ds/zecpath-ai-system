@@ -1,74 +1,58 @@
 {
     "resume_file": "resume6.txt",
-    "job_description": "Drug Safety Scientist.txt",
     "skills": [
-        "python",
-        "sql",
         "react",
-        "machine learning",
-        "data analysis"
+        "data analysis",
+        "communication",
+        "teamwork"
     ],
     "education": [
         {
-            "degree": "bachelor of pharmacy (b.pharm)",
-            "graduation_year": "2024"
+            "degree": "**bachelor of pharmacy (b.pharm)**",
+            "graduation_year": "2022"
         }
     ],
-    "certifications": [
-        "clinical data management basics - coursera",
-        "pharmacovigilance certification - udemy"
-    ],
+    "certifications": [],
     "experience": [
         {
-            "company": "healthcare analytics pvt ltd",
-            "role": "pharmacovigilance intern",
+            "company": "abc pharma pvt ltd, bengaluru",
+            "role": "",
             "details": [
-                "jun 2023 - dec 2023",
-                "reviewed adverse drug reaction reports",
-                "assisted in drug safety database maintenance",
-                "performed clinical data validation",
-                "supported regulatory documentation",
-                "projects",
-                "drug safety monitoring system",
-                "built a system to track adverse drug reactions using python"
+                "jan 2024 \u2013 present",
+                "* analyzed safety data from clinical trials and post-marketing sources",
+                "* identified trends and potential safety signals in adverse event reports",
+                "* supported benefit-risk evaluation of pharmaceutical products",
+                "* assisted in preparation of safety reports and regulatory documents",
+                "* collaborated with clinical research and regulatory teams",
+                "---",
+                "## \ud83c\udf93"
             ]
         }
     ],
     "entities": {
-        "email": "aisha.rahman@email.com",
-        "phone": "9123456789",
+        "email": "[anjali.menon.pharma@gmail.com](mailto:anjali.menon.pharma@gmail.com)",
+        "phone": "9876543210",
         "skills": [
-            "python",
-            "sql",
             "react",
-            "machine learning",
-            "data analysis"
+            "data analysis",
+            "excel"
         ]
     },
     "academic_profile": {
         "education": [
             {
-                "degree": "bachelor of pharmacy (b.pharm)",
+                "degree": "**bachelor of pharmacy (b.pharm)**",
                 "institution": "",
-                "graduation_year": "2024"
+                "graduation_year": "2022"
             }
         ],
-        "certifications": [
-            {
-                "name": "clinical data management basics - coursera",
-                "issuer": "Coursera"
-            },
-            {
-                "name": "pharmacovigilance certification - udemy",
-                "issuer": "Udemy"
-            }
-        ]
+        "certifications": []
     },
     "ats_breakdown": {
-        "skill": 83.33333333333334,
-        "experience": 60.0,
+        "skill": 33.33333333333333,
+        "experience": 20.0,
         "education": 70.0,
-        "semantic": 62.7859001159668,
+        "semantic": 13.63349437713623,
         "weights": {
             "skill": 0.4,
             "experience": 0.3,
@@ -76,12 +60,15 @@
             "semantic": 0.2
         },
         "explanation": [
-            "Strong skill match",
-            "Relevant experience found",
+            "Skill gap detected",
+            "Experience is weak or missing",
             "Education aligns with role"
         ]
     },
-    "embedding_score": 62.7859001159668,
-    "final_score": 70.89,
-    "decision": "Selected"
+    "embedding_score": 13.63349437713623,
+    "final_score": 29.06,
+    "decision": "Rejected",
+    "fairness_score": 0.0,
+    "matched_skills": [],
+    "bias_flags": []
 }

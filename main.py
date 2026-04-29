@@ -1,12 +1,11 @@
 import os
 import json
+import shutil
+import uuid
 from datetime import datetime
 import numpy as np
 
-from fastapi import FastAPI, UploadFile, File
-import shutil
-import uuid
-
+from fastapi import FastAPI, UploadFile, File, Query
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -32,20 +31,35 @@ from utils.academic_profile_builder import build_academic_profile
 from ats_engine.scorer import calculate_final_score
 
 # =========================
+# FAIRNESS
+# =========================
+from scoring.fairness import calculate_fairness_score
+
+
+# =========================
 # FASTAPI APP
 # =========================
 app = FastAPI()
 
-RESUME_FOLDER = "resumes"
+UPLOAD_FOLDER = "resumes"
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
 
 # =========================
-# MODEL
+# MODEL (SAFE LOADING)
 # =========================
-model = SentenceTransformer("all-MiniLM-L6-v2")
+try:
+    model = SentenceTransformer("all-MiniLM-L6-v2")
+    print("✅ Model loaded successfully")
+except Exception as e:
+    print("⚠️ Model loading failed:", e)
+    model = None
 
 
 def get_embedding(text):
-    return model.encode(text)
+    if model:
+        return model.encode(text)
+    return np.zeros(384)  # fallback vector
 
 
 def cosine_score(a, b):
@@ -68,7 +82,7 @@ def make_json_safe(obj):
 # =========================
 # MAIN PIPELINE
 # =========================
-def process_resume(file_path, jd_text=None):
+def process_resume(file_path, job_description):
 
     if not os.path.exists(file_path):
         return {"error": "Resume not found"}
@@ -130,117 +144,98 @@ def process_resume(file_path, jd_text=None):
     academic_profile = build_academic_profile(education, certifications)
 
     # -------------------------
-    # STEP 7: JOB DESCRIPTION
-    # -------------------------
-    if jd_text is None:
-        return {"error": "Job description is required"}
-
-    # -------------------------
-    # STEP 8: SEMANTIC SCORE
+    # STEP 7: SEMANTIC SCORE
     # -------------------------
     resume_emb = get_embedding(normalized_text)
-    jd_emb = get_embedding(jd_text)
+    jd_emb = get_embedding(job_description)
 
     embedding_score = cosine_score(resume_emb, jd_emb)
 
     # -------------------------
-    # STEP 9: ATS SCORING
+    # STEP 8: ATS SCORE
     # -------------------------
     final_score, breakdown = calculate_final_score(
         skills=skills,
         experience=experience,
         education=education,
         embedding_score=embedding_score,
-        jd_text=jd_text,
-        role="software_engineer"
+        jd_text=job_description,
+        role="general"
     )
 
     decision = "Selected" if final_score >= 55 else "Rejected"
+
+    # -------------------------
+    # STEP 9: FAIRNESS
+    # -------------------------
+    fairness_score, matched_skills, bias_flags = calculate_fairness_score(
+        resume_text=normalized_text,
+        jd_text=job_description
+    )
 
     # -------------------------
     # FINAL OUTPUT
     # -------------------------
     result = {
         "resume_file": os.path.basename(file_path),
+
         "skills": skills,
         "education": education,
         "certifications": certifications,
         "experience": experience,
         "entities": entities,
         "academic_profile": academic_profile,
+
         "ats_breakdown": breakdown,
         "embedding_score": float(embedding_score * 100),
         "final_score": final_score,
-        "decision": decision
+        "decision": decision,
+
+        "fairness_score": fairness_score,
+        "matched_skills": matched_skills,
+        "bias_flags": bias_flags
     }
 
     return make_json_safe(result)
 
 
 # =========================
-# API 1: UPLOAD RESUME
+# UPLOAD API
 # =========================
 @app.post("/upload")
 def upload_resume(file: UploadFile = File(...)):
-    try:
-        os.makedirs(RESUME_FOLDER, exist_ok=True)
 
-        file_id = str(uuid.uuid4())
+    file_ext = file.filename.split(".")[-1]
+    file_name = f"{uuid.uuid4()}.{file_ext}"
+    file_path = os.path.join(UPLOAD_FOLDER, file_name)
 
-        # ✅ KEEP ORIGINAL EXTENSION
-        file_ext = file.filename.split(".")[-1]
-        file_path = os.path.join(RESUME_FOLDER, f"{file_id}.{file_ext}")
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
 
-        with open(file_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
-
-        return {
-            "status": "success",
-            "file_path": file_path
-        }
-
-    except Exception as e:
-        return {"status": "error", "message": str(e)}
+    return {
+        "status": "success",
+        "file_path": file_path
+    }
 
 
 # =========================
-# API 2: ANALYZE RESUME
+# ANALYZE API
 # =========================
 @app.post("/analyze")
-def analyze_resume(file_path: str, job_description: str):
-    try:
-        result = process_resume(file_path, job_description)
+def analyze_resume(
+    file_path: str = Query(...),
+    job_description: str = Query(...)
+):
+    result = process_resume(file_path, job_description)
 
-        return {
-            "status": "success",
-            "data": result
-        }
-
-    except Exception as e:
-        return {
-            "status": "error",
-            "message": str(e)
-        }
+    return {
+        "status": "success",
+        "data": result
+    }
 
 
 # =========================
-# RUN MODE (OPTIONAL)
+# RUN MODE
 # =========================
 if __name__ == "__main__":
-
     print(f"{datetime.now()} - ATS API Started 🚀")
-
-    test_file = os.path.join(RESUME_FOLDER, "resume6.txt")
-
-    if os.path.exists(test_file):
-        result = process_resume(test_file, "Looking for Python developer")
-
-        print("\n⭐ Final Score:", result["final_score"])
-        print("🎯 Decision:", result["decision"])
-
-        os.makedirs("output", exist_ok=True)
-
-        with open("output/resume_output.json", "w", encoding="utf-8") as f:
-            json.dump(result, f, indent=4)
-
-        print("\n📁 Saved: output/resume_output.json")

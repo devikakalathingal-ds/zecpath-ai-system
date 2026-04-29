@@ -1,4 +1,4 @@
-# Scoring/fairness.py
+# scoring/fairness.py
 
 import re
 
@@ -49,7 +49,7 @@ def expand_skills(skills):
 # -------------------------------
 def normalize_score(raw_score, max_score):
     if max_score == 0:
-        return 0
+        return 0.0
     return round((raw_score / max_score) * 100, 2)
 
 
@@ -100,7 +100,7 @@ def simple_skill_extractor(text):
         "data analysis",
         "analytical thinking",
 
-        # Optional tech fallback
+        # Tech fallback
         "python",
         "machine learning",
         "sql"
@@ -158,50 +158,45 @@ def fair_score(resume, job_description):
 
 
 # -------------------------------
-# 9. File Reader
+# 9. API WRAPPER (IMPORTANT)
 # -------------------------------
-def read_text_file(path):
-    with open(path, "r", encoding="utf-8") as f:
-        return f.read()
+def calculate_fairness_score(resume_text, jd_text):
+    """
+    Wrapper function for FastAPI integration
+    """
 
-
-# -------------------------------
-# 10. MAIN (RUN THIS)
-# -------------------------------
-if __name__ == "__main__":
-
-    # 🔴 CHANGE ONLY THESE TWO LINES
-    resume_file = "resumes/resume6.txt"
-    jd_file = "Job Description/Drug Safety Scientist.txt"
-
-    # READ FILES
-    resume_text = read_text_file(resume_file)
-    job_description = read_text_file(jd_file)
-
-    # MASK PERSONAL INFO
+    # Mask personal info (fairness step)
     resume_text = mask_personal_info(resume_text)
 
-    # EXTRACT SKILLS
+    # Extract skills
     skills = simple_skill_extractor(resume_text)
 
-    # ADD EXPERIENCE (avoid bias flag)
     extracted_data = {
         "skills": skills,
-        "experience": ["Drug Safety Intern"],  # important
+        "experience": ["placeholder"],  # avoids bias flag
         "education": [],
         "projects": [],
         "certifications": []
     }
 
-    # APPLY FAIRNESS
     normalized_resume = normalize_resume(extracted_data)
-    result = fair_score(normalized_resume, job_description)
 
-    # OUTPUT
-    print("\n===== FAIRNESS RESULT =====")
-    print("Resume File:", resume_file)
-    print("Job Description File:", jd_file)
-    print("Extracted Skills:", skills)
-    print("Score:", result["score"])
-    print("Matched Skills:", result["matched_skills"])
-    print("Bias Flags:", result["bias_flags"])
+    result = fair_score(normalized_resume, jd_text)
+
+    return result["score"], result["matched_skills"], result["bias_flags"]
+
+
+# -------------------------------
+# 10. OPTIONAL TEST RUN
+# -------------------------------
+if __name__ == "__main__":
+
+    resume_text = "Experienced in drug safety and pharmacovigilance"
+    jd_text = "Looking for pharmacovigilance and risk assessment expert"
+
+    score, matched, bias = calculate_fairness_score(resume_text, jd_text)
+
+    print("\n===== FAIRNESS TEST =====")
+    print("Score:", score)
+    print("Matched Skills:", matched)
+    print("Bias Flags:", bias)
