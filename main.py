@@ -1,7 +1,8 @@
 import os
-import json
 import shutil
 import uuid
+import gc
+import time
 from datetime import datetime
 import numpy as np
 
@@ -25,19 +26,12 @@ from skill_engine.skill_extractor import SkillExtractor
 from utils.entity_extractor import extract_entities
 from utils.academic_profile_builder import build_academic_profile
 
-# =========================
-# ATS ENGINE
-# =========================
 from ats_engine.scorer import calculate_final_score
-
-# =========================
-# FAIRNESS
-# =========================
 from scoring.fairness import calculate_fairness_score
 
 
 # =========================
-# FASTAPI APP
+# APP
 # =========================
 app = FastAPI()
 
@@ -46,20 +40,43 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 
 # =========================
-# MODEL (SAFE LOADING)
+# PERFORMANCE OPTIMIZATION (NEW)
+# =========================
+text_cache = {}
+
+def get_cached_text(file_path):
+    if file_path in text_cache:
+        return text_cache[file_path]
+
+    text = read_resume(file_path)
+    text_cache[file_path] = text
+    return text
+
+
+def time_logger(func):
+    def wrapper(*args, **kwargs):
+        start = time.time()
+        result = func(*args, **kwargs)
+        end = time.time()
+        print(f"⚡ {func.__name__} took {end - start:.2f}s")
+        return result
+    return wrapper
+
+
+# =========================
+# MODEL
 # =========================
 try:
     model = SentenceTransformer("all-MiniLM-L6-v2")
-    print("✅ Model loaded successfully")
-except Exception as e:
-    print("⚠️ Model loading failed:", e)
+    print("✅ Model loaded")
+except:
     model = None
 
 
 def get_embedding(text):
     if model:
         return model.encode(text)
-    return np.zeros(384)  # fallback vector
+    return np.zeros(384)
 
 
 def cosine_score(a, b):
@@ -67,7 +84,7 @@ def cosine_score(a, b):
 
 
 # =========================
-# SAFE JSON HANDLER
+# SAFE JSON
 # =========================
 def make_json_safe(obj):
     if isinstance(obj, dict):
@@ -80,25 +97,22 @@ def make_json_safe(obj):
 
 
 # =========================
-# MAIN PIPELINE
+# MAIN PIPELINE (OPTIMIZED)
 # =========================
+@time_logger
 def process_resume(file_path, job_description):
 
     if not os.path.exists(file_path):
         return {"error": "Resume not found"}
 
-    # -------------------------
-    # STEP 1: READ + CLEAN
-    # -------------------------
-    raw_text = read_resume(file_path)
+    # STEP 1: READ + CLEAN (CACHE OPTIMIZED)
+    raw_text = get_cached_text(file_path)
     cleaned_text = clean_text(raw_text)
     normalized_text = normalize_text(cleaned_text)
 
     classify_sections(normalized_text)
 
-    # -------------------------
-    # STEP 2: SKILLS
-    # -------------------------
+    # STEP 2: SKILLS (OPTIMIZED DEDUPLICATION)
     skill_extractor = SkillExtractor()
     skills_raw = skill_extractor.extract_skills(normalized_text)
 
@@ -107,53 +121,28 @@ def process_resume(file_path, job_description):
     if isinstance(skills_raw, dict):
         for key in ["technical", "business", "creative", "soft_skills"]:
             for item in skills_raw.get(key, []):
-                if isinstance(item, dict):
-                    skills.append(item.get("skill"))
-                else:
-                    skills.append(item)
+                skills.append(item.get("skill") if isinstance(item, dict) else item)
 
     elif isinstance(skills_raw, list):
         for item in skills_raw:
-            if isinstance(item, dict):
-                skills.append(item.get("skill"))
-            else:
-                skills.append(item)
+            skills.append(item.get("skill") if isinstance(item, dict) else item)
 
-    skills = [s for s in skills if s]
+    skills = list(set([s for s in skills if s]))  # FAST CLEAN
 
-    # -------------------------
-    # STEP 3: EDUCATION
-    # -------------------------
+    # STEP 3: OTHER EXTRACTIONS
     education = extract_education(raw_text)
-
-    # -------------------------
-    # STEP 4: CERTIFICATIONS
-    # -------------------------
     certifications = extract_certifications(raw_text)
-
-    # -------------------------
-    # STEP 5: EXPERIENCE
-    # -------------------------
     experience = extract_experience(raw_text)
-
-    # -------------------------
-    # STEP 6: ENTITIES
-    # -------------------------
     entities = extract_entities(raw_text)
-
     academic_profile = build_academic_profile(education, certifications)
 
-    # -------------------------
-    # STEP 7: SEMANTIC SCORE
-    # -------------------------
+    # STEP 4: EMBEDDINGS
     resume_emb = get_embedding(normalized_text)
     jd_emb = get_embedding(job_description)
 
     embedding_score = cosine_score(resume_emb, jd_emb)
 
-    # -------------------------
-    # STEP 8: ATS SCORE
-    # -------------------------
+    # STEP 5: SCORING
     final_score, breakdown = calculate_final_score(
         skills=skills,
         experience=experience,
@@ -165,32 +154,27 @@ def process_resume(file_path, job_description):
 
     decision = "Selected" if final_score >= 55 else "Rejected"
 
-    # -------------------------
-    # STEP 9: FAIRNESS
-    # -------------------------
+    # STEP 6: FAIRNESS
     fairness_score, matched_skills, bias_flags = calculate_fairness_score(
         resume_text=normalized_text,
         jd_text=job_description
     )
 
-    # -------------------------
-    # FINAL OUTPUT
-    # -------------------------
+    # MEMORY CLEANUP (IMPORTANT)
+    gc.collect()
+
     result = {
         "resume_file": os.path.basename(file_path),
-
         "skills": skills,
         "education": education,
         "certifications": certifications,
         "experience": experience,
         "entities": entities,
         "academic_profile": academic_profile,
-
         "ats_breakdown": breakdown,
         "embedding_score": float(embedding_score * 100),
         "final_score": final_score,
         "decision": decision,
-
         "fairness_score": fairness_score,
         "matched_skills": matched_skills,
         "bias_flags": bias_flags
@@ -235,7 +219,7 @@ def analyze_resume(
 
 
 # =========================
-# RUN MODE
+# RUN
 # =========================
 if __name__ == "__main__":
     print(f"{datetime.now()} - ATS API Started 🚀")
